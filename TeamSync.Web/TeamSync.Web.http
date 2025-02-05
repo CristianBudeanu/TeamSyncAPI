@@ -1,0 +1,6 @@
+@TeamSync.Web_HostAddress = http://localhost:5082
+
+GET {{TeamSync.Web_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
