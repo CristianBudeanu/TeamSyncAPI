@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TeamSync.Infrastructure.EF.Contexts;
 using TeamSync.Infrastructure.EF.Repositories;
+using TeamSync.Infrastructure.EF.Repositories.Project;
 
 namespace TeamSync.Infrastructure
 {
@@ -10,10 +11,17 @@ namespace TeamSync.Infrastructure
     {
         public static IServiceCollection ConfigInfrastructureLayer(this IServiceCollection services, IConfiguration configuration)
         {
+            string connectionString = configuration.GetConnectionString("connstringSqlServer");
+
             services.AddScoped<IUserRepository, UserRepository>();
 
             services.AddDbContext<UserContext>(options =>
-    options.UseSqlServer(configuration.GetConnectionString("connstringSqlServer")));
+              options.UseSqlServer(connectionString));
+
+            services.AddScoped<IProjectRepository, ProjectRepository>();
+
+            services.AddDbContext<ProjectContext>(options =>
+              options.UseSqlServer(connectionString));
 
 
             //services.AddDbContext<UserContext>(options =>

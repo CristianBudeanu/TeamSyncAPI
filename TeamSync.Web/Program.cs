@@ -4,20 +4,21 @@ using Serilog;
 using System.Text;
 using TeamSync.Application;
 using TeamSync.Application.GlobalExceptionHandler.ExceptionsConfig;
-using TeamSync.Application.Services.Chat.Hubs;
-using TeamSync.Infrastructure;
-
-var builder = WebApplication.CreateBuilder(args);
 
 var configuration = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json").Build();
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json")
+        .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", true)
+        .Build();
 
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(configuration)
-            .CreateLogger();
+    .CreateLogger();
+
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
@@ -67,7 +68,7 @@ if (app.Environment.IsDevelopment())
 }
 
 
-app.MapHub<ChatHub>("/Hubs/ChatHub");
+//app.MapHub<ChatHub>("/Hubs/ChatHub");
 
 app.UseCors("TeamSyncPolicy");
 

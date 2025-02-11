@@ -1,21 +1,21 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using TeamSync.Domain.Entities.TaskEntities;
+using TeamSync.Domain.Entities.ProjectEntities;
 
 namespace TeamSync.Infrastructure.EF.Contexts
 {
-    public class UserContext : DbContext
+    public class ProjectContext : DbContext
     {
-        public UserContext(DbContextOptions<UserContext> options) : base(options)
+        public ProjectContext(DbContextOptions<ProjectContext> options) : base(options)
         {
             
         }
-        public DbSet<User> Users { get; set; }
+        public DbSet<Project> Projects { get; set; }
+        public DbSet<TaskItem> Tasks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Add additional configurations if needed
             base.OnModelCreating(modelBuilder);
         }
-    } 
+    }
 }

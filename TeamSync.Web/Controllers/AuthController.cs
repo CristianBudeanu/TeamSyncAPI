@@ -9,12 +9,14 @@ namespace TeamSync.Web.Controllers
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class AuthController(
-        IAuthService authService
+        IAuthService authService,
+        ILogger<AuthController> logger
         ) : ControllerBase
     {
         [HttpPost]
         public async Task<IActionResult> Login(LoginModel data)
         {
+            logger.LogInformation("Hello World " + data.Username);
             var result = await authService.LoginTask(data.Adapt<LoginDto>());
             return Ok(result);
         }

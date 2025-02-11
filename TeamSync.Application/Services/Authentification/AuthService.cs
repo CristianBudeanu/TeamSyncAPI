@@ -1,13 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using Serilog;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using TeamSync.Application.Dto;
 using TeamSync.Application.Dto.AuthDto;
 using TeamSync.Application.GlobalExceptionHandler.CustomExceptions;
-using TeamSync.Domain.Entities;
 using TeamSync.Domain.Entities.TaskEntities;
 using TeamSync.Helpers.Authentification;
 using TeamSync.Infrastructure.EF.Repositories;

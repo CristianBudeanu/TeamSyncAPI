@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using TeamSync.Application.Services.Authentification;
 using TeamSync.Application.Services.Chat;
+using TeamSync.Application.Services.Project;
 using TeamSync.Infrastructure;
 
 namespace TeamSync.Application
@@ -11,8 +12,8 @@ namespace TeamSync.Application
         public static IServiceCollection ConfigAppLayer(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IProjectService, ProjectService>();
             services.AddSingleton<ChatService>();
-            services.AddSignalR();
 
             services.ConfigInfrastructureLayer(configuration);
 
