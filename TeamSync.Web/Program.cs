@@ -3,7 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
 using TeamSync.Application;
-using TeamSync.Application.GlobalExceptionHandler.ExceptionsConfig;
+using TeamSync.Application.Common.GlobalExceptionHandler.ExceptionsConfig;
 
 var configuration = new ConfigurationBuilder()
         .SetBasePath(Directory.GetCurrentDirectory())
@@ -25,6 +25,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.ConfigAppLayer(configuration);
 

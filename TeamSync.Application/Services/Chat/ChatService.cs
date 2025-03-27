@@ -18,7 +18,7 @@ namespace TeamSync.Application.Services.Chat
                 {
                     if (user.Key.ToLower() == userToAdd.ToLower())
                     {
-                        throw new GlobalExceptionHandler.CustomExceptions.UnauthorizedAccessException("You don't have authorization to this chat.");
+                        throw new UnauthorizedAccessException("You don't have authorization to this chat.");
                     }
                 }
 

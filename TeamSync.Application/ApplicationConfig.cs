@@ -1,8 +1,16 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Mapster;
+using MapsterMapper;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Partner.Application.Common;
 using TeamSync.Application.Services.Authentification;
 using TeamSync.Application.Services.Chat;
-using TeamSync.Application.Services.Project;
+using TeamSync.Application.Services.ProjectServices;
+using TeamSync.Application.Services.ProjectServices.GithubServices;
+using TeamSync.Application.Services.ProjectServices.InvitationServices;
+using TeamSync.Application.Services.TaskServices;
+using TeamSync.Helpers.HttpContextHelper;
+using TeamSync.Helpers.ImageHelper;
 using TeamSync.Infrastructure;
 
 namespace TeamSync.Application
@@ -14,6 +22,18 @@ namespace TeamSync.Application
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IProjectService, ProjectService>();
             services.AddSingleton<ChatService>();
+            services.AddScoped<IInvitationService, InvitationService>();
+            services.AddScoped<IGithubService, GithubService>();
+            services.AddScoped<ITaskService, TaskService>();
+
+            //Helper
+            services.AddScoped<IImageService, ImageService>();
+            services.AddSingleton<IHttpContextService, HttpContextService>();
+
+            var config = TypeAdapterConfig.GlobalSettings;
+            config.Scan(typeof(MappingConfig).Assembly);
+            var mapperConfig = new Mapper(config);
+            services.AddSingleton<IMapper>(mapperConfig);
 
             services.ConfigInfrastructureLayer(configuration);
 

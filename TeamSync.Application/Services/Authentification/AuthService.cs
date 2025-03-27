@@ -1,33 +1,34 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using TeamSync.Application.Common.GlobalExceptionHandler.CustomExceptions;
 using TeamSync.Application.Dto.AuthDto;
-using TeamSync.Application.GlobalExceptionHandler.CustomExceptions;
 using TeamSync.Domain.Entities.TaskEntities;
 using TeamSync.Helpers.Authentification;
-using TeamSync.Infrastructure.EF.Repositories;
+using TeamSync.Infrastructure.EF.Contexts;
 
 namespace TeamSync.Application.Services.Authentification
 {
     public class AuthService : IAuthService
     {
         private readonly IConfiguration _config;
-        private readonly IUserRepository _userRepository;
+        private readonly TeamSyncAppContext _context;
 
         public AuthService(
-            IConfiguration config, 
-            IUserRepository userRepository
+            IConfiguration config,
+            TeamSyncAppContext context
             )
         {
             _config = config;
-            _userRepository = userRepository;
+            _context = context;
         }
 
         public async Task<string> LoginTask(LoginDto data)
         {
-            var userDb = await _userRepository.GetUserAsync(data.Username);
+            var userDb = await _context.Users.Where(u => u.Username == data.Username).FirstOrDefaultAsync();
 
             if (userDb == null)
             {
@@ -36,13 +37,7 @@ namespace TeamSync.Application.Services.Authentification
 
             if (PassHasher.VerifyPassword(data.Password, userDb.PassHash, userDb.PassSalt))
             {
-                var userData = new User()
-                {
-                    Username = data.Username,
-                    Role = Domain.Enums.Roles.User
-                };
-
-                var token = GenerateJWT(userData);
+                var token = GenerateJWT(userDb);
                 return token;
             }
 
@@ -51,7 +46,7 @@ namespace TeamSync.Application.Services.Authentification
 
         public async Task<bool> RegisterTask(RegisterDto data)
         {
-            var existUser = await _userRepository.GetUserAsync(data.Username);
+            var existUser = await _context.Users.Where(u => u.Username == data.Username).FirstOrDefaultAsync();
 
             if (existUser == null) 
             {
@@ -62,10 +57,13 @@ namespace TeamSync.Application.Services.Authentification
                     Email = data.Email,
                     PassHash = hash,
                     PassSalt = salt,
-                    Role = Domain.Enums.Roles.User
+                    RoleId = Guid.Parse("22222222-2222-2222-2222-222222222222")
                 };
 
-                return await _userRepository.AddUserAsync(userData);
+                await _context.Users.AddAsync(userData);
+                int result = await _context.SaveChangesAsync();
+
+                return result > 0 ? true : throw new BadRequestException("Error register user.");
             }
             throw new BadRequestException("User with this name already exists!");
         }
@@ -82,7 +80,7 @@ namespace TeamSync.Application.Services.Authentification
 
             var token = new JwtSecurityToken(
                 claims: identity,
-                expires: DateTime.Now.AddMinutes(15),
+                expires: DateTime.Now.AddHours(3),
                 signingCredentials: credentials
                 );
 

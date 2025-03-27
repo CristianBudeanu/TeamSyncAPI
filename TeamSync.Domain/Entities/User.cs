@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TeamSync.Domain.Entities.ProjectEntities;
 using TeamSync.Domain.Enums;
 
 namespace TeamSync.Domain.Entities.TaskEntities
@@ -6,11 +7,15 @@ namespace TeamSync.Domain.Entities.TaskEntities
     public class User
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Username { get; set; }
-        public Roles Role {  get; set; }
         public string Email { get; set; }
         public string PassHash { get; set; }
         public string PassSalt { get; set; }
+        public Guid RoleId { get; set; } // Foreign key 
+        public Role Role { get; set; }
+        public List<Project> Projects { get; set; } = new List<Project>();
+        public List<ProjectUserRole> ProjectUserRoles { get; set; } = [];
+        public List<TaskItem> AssignedTasks { get; set; } = [];
     }
 }

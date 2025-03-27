@@ -11,9 +11,11 @@
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.2.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.1" />
+    <PackageReference Include="Octokit" Version="14.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TeamSync.Domain\TeamSync.Domain.csproj" />
     <ProjectReference Include="..\TeamSync.Helpers\TeamSync.Helpers.csproj" />
     <ProjectReference Include="..\TeamSync.Infrastructure\TeamSync.Infrastructure.csproj" />
   </ItemGroup>
