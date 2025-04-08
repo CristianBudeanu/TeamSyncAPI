@@ -12,7 +12,7 @@
                 {
                     if (user.Key.ToLower() == userToAdd.ToLower())
                     {
-                        throw new UnauthorizedAccessException("You don't have authorization to this chat.");
+                        //throw new UnauthorizedAccessException("You don't have authorization to this chat.");
                     }
                 }
 

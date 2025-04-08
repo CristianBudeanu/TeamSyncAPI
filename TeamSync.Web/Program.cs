@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using TeamSync.Application;
 using TeamSync.Application.Common.GlobalExceptionHandler.ExceptionsConfig;
+using TeamSync.Application.Services.Chat.Hubs;
 
 var configuration = new ConfigurationBuilder()
         .SetBasePath(Directory.GetCurrentDirectory())
@@ -21,6 +22,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Host.UseSerilog();
+builder.Services.AddSignalR();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -57,7 +59,8 @@ builder.Services.AddCors(options =>
         {
             policy.WithOrigins("http://localhost:4200")
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
         });
 });
 
@@ -69,10 +72,6 @@ if (app.Environment.IsDevelopment())
     // app.UseSwagger();
     // app.UseSwaggerUI();
 }
-
-
-//app.MapHub<ChatHub>("/Hubs/ChatHub");
-
 
 app.UseCors("TeamSyncPolicy");
 
@@ -91,5 +90,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
+app.MapHub<ChatHub>("api/hubs/chat");
 
 app.Run();

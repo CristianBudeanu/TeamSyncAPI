@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TeamSync.Application.Dto.AuthDto;
 using TeamSync.Application.Services.Authentification;
-using TeamSync.Web.Models.AuthModels;
 
 namespace TeamSync.Web.Controllers
 {
@@ -14,17 +13,16 @@ namespace TeamSync.Web.Controllers
         ) : ControllerBase
     {
         [HttpPost]
-        public async Task<IActionResult> Login(LoginModel data)
+        public async Task<IActionResult> Login(LoginDto data)
         {
-            logger.LogInformation("Hello World " + data.Username);
-            var result = await authService.LoginTask(data.Adapt<LoginDto>());
+            var result = await authService.LoginTask(data);
             return Ok(result);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterModel data)
+        public async Task<IActionResult> Register(RegisterDto data)
         {
-            var result = await authService.RegisterTask(data.Adapt<RegisterDto>());
+            var result = await authService.RegisterTask(data);
             return Ok(result);
         }
     }
