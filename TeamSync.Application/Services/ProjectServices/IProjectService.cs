@@ -1,6 +1,5 @@
 ﻿using TeamSync.Application.Dto.GithubDtos;
 using TeamSync.Application.Dto.ProjectDtos;
-using TeamSync.Domain.Entities.ProjectEntities;
 
 namespace TeamSync.Application.Services.ProjectServices
 {

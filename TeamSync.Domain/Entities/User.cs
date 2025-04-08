@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using TeamSync.Domain.Entities.ProjectEntities;
-using TeamSync.Domain.Enums;
 
 namespace TeamSync.Domain.Entities.TaskEntities
 {

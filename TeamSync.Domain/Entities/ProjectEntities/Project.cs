@@ -6,7 +6,7 @@ namespace TeamSync.Domain.Entities.ProjectEntities
 {
     public class Project
     {
-        [Key]   
+        [Key]
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string? Image { get; set; }

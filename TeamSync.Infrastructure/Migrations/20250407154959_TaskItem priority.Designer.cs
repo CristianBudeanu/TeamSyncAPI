@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TeamSync.Infrastructure.EF.Contexts;
 
@@ -11,9 +12,11 @@ using TeamSync.Infrastructure.EF.Contexts;
 namespace TeamSync.Infrastructure.Migrations
 {
     [DbContext(typeof(TeamSyncAppContext))]
-    partial class TeamSyncAppContextModelSnapshot : ModelSnapshot
+    [Migration("20250407154959_TaskItem priority")]
+    partial class TaskItempriority
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

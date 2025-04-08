@@ -2,9 +2,8 @@
 {
     public enum TaskPriority
     {
-        Low,
-        Medium,
         High,
-        Urgent
+        Medium,
+        Low
     }
 }

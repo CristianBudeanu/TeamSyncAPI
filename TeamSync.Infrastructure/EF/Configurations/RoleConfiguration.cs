@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TeamSync.Domain.Entities;
-using TeamSync.Domain.Entities.ProjectEntities;
 
 namespace TeamSync.Infrastructure.EF.Configurations
 {
@@ -10,7 +9,7 @@ namespace TeamSync.Infrastructure.EF.Configurations
         public void Configure(EntityTypeBuilder<Role> builder)
         {
             builder.ToTable("Roles");
-            
+
             builder.HasKey(r => r.Id);
 
             builder.Property(r => r.RoleName)

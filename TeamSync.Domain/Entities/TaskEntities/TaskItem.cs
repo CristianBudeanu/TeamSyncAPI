@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using TeamSync.Domain.Entities.ProjectEntities;
+using TeamSync.Domain.Enums;
 
 namespace TeamSync.Domain.Entities.TaskEntities
 {
@@ -13,6 +14,7 @@ namespace TeamSync.Domain.Entities.TaskEntities
         public User CreatorUser { get; set; }
         public Guid AssignedTo { get; set; }
         public User AssignedUser { get; set; }
+        public TaskPriority Priority { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }

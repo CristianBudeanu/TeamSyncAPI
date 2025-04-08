@@ -70,15 +70,15 @@ namespace TeamSync.Application.Services.ProjectServices.InvitationServices
 
             var invitation = await _context.Invitations.Where(p => p.ProjectId == projectId).FirstOrDefaultAsync();
 
-            if(invitation == null)
+            if (invitation == null)
             {
                 invitation = new Invitation(projectId);
                 await _context.Invitations.AddAsync(invitation);
                 await _context.SaveChangesAsync();
             }
-            else if(invitation.ExpiresAt > DateTime.UtcNow)
+            else if (invitation.ExpiresAt > DateTime.UtcNow)
             {
-                return invitation.Token.ToString();                
+                return invitation.Token.ToString();
             }
             else
             {

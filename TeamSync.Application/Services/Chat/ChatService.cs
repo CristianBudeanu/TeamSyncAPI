@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TeamSync.Application.Services.Chat
+﻿namespace TeamSync.Application.Services.Chat
 {
     public class ChatService
     {
@@ -38,7 +32,7 @@ namespace TeamSync.Application.Services.Chat
             }
         }
 
-        public string GetUserByConnectionId(string connectionId) 
+        public string GetUserByConnectionId(string connectionId)
         {
             lock (Users)
             {
@@ -56,7 +50,7 @@ namespace TeamSync.Application.Services.Chat
 
         public void RemoveUserFromList(string user)
         {
-            lock(Users)
+            lock (Users)
             {
                 if (Users.ContainsKey(user))
                 {

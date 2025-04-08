@@ -10,8 +10,8 @@ namespace TeamSync.Application.Services.ProjectServices.GithubServices
         {
             List<GithubCommitDto> githubCommits = new List<GithubCommitDto>();
 
-            var client = dto.Token == null 
-            ? new GitHubClient(new ProductHeaderValue("TeamSyncApp")) 
+            var client = dto.Token == null
+            ? new GitHubClient(new ProductHeaderValue("TeamSyncApp"))
             : new GitHubClient(new ProductHeaderValue("TeamSyncApp"))
             {
                 Credentials = new Credentials(dto.Token)
@@ -21,7 +21,7 @@ namespace TeamSync.Application.Services.ProjectServices.GithubServices
             {
                 PageSize = 10,
                 PageCount = 1,
-                StartPage = 1 
+                StartPage = 1
             };
 
             var commits = await client.Repository.Commit.GetAll(dto.Username, dto.RepositoryName, options);

@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using TeamSync.Application.Common.GlobalExceptionHandler.CustomExceptions;
 using TeamSync.Application.Dto.AuthDto;
 using TeamSync.Domain.Entities.TaskEntities;
@@ -26,16 +26,16 @@ namespace TeamSync.Application.Services.Authentification
             _context = context;
         }
 
-        public async Task<string> LoginTask(LoginDto data)
+        public async Task<string> LoginTask(LoginDto dto)
         {
-            var userDb = await _context.Users.Where(u => u.Username == data.Username).FirstOrDefaultAsync();
+            var userDb = await _context.Users.Where(u => u.Username == dto.Username).Include(r => r.Role).FirstOrDefaultAsync();
 
             if (userDb == null)
             {
                 throw new NotFoundException("User not found!");
             }
 
-            if (PassHasher.VerifyPassword(data.Password, userDb.PassHash, userDb.PassSalt))
+            if (PassHasher.VerifyPassword(dto.Password, userDb.PassHash, userDb.PassSalt))
             {
                 var token = GenerateJWT(userDb);
                 return token;
@@ -44,17 +44,17 @@ namespace TeamSync.Application.Services.Authentification
             throw new BadRequestException("Incorrect Username/Password!");
         }
 
-        public async Task<bool> RegisterTask(RegisterDto data)
+        public async Task<bool> RegisterTask(RegisterDto dto)
         {
-            var existUser = await _context.Users.Where(u => u.Username == data.Username).FirstOrDefaultAsync();
+            var existUser = await _context.Users.Where(u => u.Username == dto.Username).FirstOrDefaultAsync();
 
-            if (existUser == null) 
+            if (existUser == null)
             {
-                var (hash, salt) = PassHasher.HashPassword(data.Password);
+                var (hash, salt) = PassHasher.HashPassword(dto.Password);
                 var userData = new User
                 {
-                    Username = data.Username,
-                    Email = data.Email,
+                    Username = dto.Username,
+                    Email = dto.Email,
                     PassHash = hash,
                     PassSalt = salt,
                     RoleId = Guid.Parse("22222222-2222-2222-2222-222222222222")
@@ -75,7 +75,7 @@ namespace TeamSync.Application.Services.Authentification
             var identity = new[]
             {
                 new Claim("Username", $"{user.Username}"),
-                new Claim("Role", $"{user.Role}"),
+                new Claim("Role", $"{user.Role.RoleName}"),
             };
 
             var token = new JwtSecurityToken(

@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
 using TeamSync.Application.Common.GlobalExceptionHandler.CustomExceptions;
 

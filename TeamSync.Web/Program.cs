@@ -1,7 +1,8 @@
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
-using System.Text;
 using TeamSync.Application;
 using TeamSync.Application.Common.GlobalExceptionHandler.ExceptionsConfig;
 
@@ -72,9 +73,18 @@ if (app.Environment.IsDevelopment())
 
 //app.MapHub<ChatHub>("/Hubs/ChatHub");
 
+
 app.UseCors("TeamSyncPolicy");
 
 app.UseHttpsRedirection();
+
+app.UseStaticFiles();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(@"D:\Projects\TeamSync\Resources\Projects"),
+    RequestPath = "/Projects"
+});
 
 app.UseAuthorization();
 

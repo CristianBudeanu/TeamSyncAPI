@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TeamSync.Domain.Entities;
-using TeamSync.Domain.Entities.GithubEntities;
 using TeamSync.Domain.Entities.ProjectEntities;
 
 namespace TeamSync.Infrastructure.EF.Configurations

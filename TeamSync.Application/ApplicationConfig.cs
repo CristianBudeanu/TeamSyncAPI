@@ -10,7 +10,7 @@ using TeamSync.Application.Services.ProjectServices.GithubServices;
 using TeamSync.Application.Services.ProjectServices.InvitationServices;
 using TeamSync.Application.Services.TaskServices;
 using TeamSync.Helpers.HttpContextHelper;
-using TeamSync.Helpers.ImageHelper;
+using TeamSync.Helpers.FileHelper;
 using TeamSync.Infrastructure;
 
 namespace TeamSync.Application
@@ -27,7 +27,7 @@ namespace TeamSync.Application
             services.AddScoped<ITaskService, TaskService>();
 
             //Helper
-            services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<IFileService, FileService>();
             services.AddSingleton<IHttpContextService, HttpContextService>();
 
             var config = TypeAdapterConfig.GlobalSettings;

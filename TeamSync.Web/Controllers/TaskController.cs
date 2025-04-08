@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TeamSync.Application.Dto.TaskItemDtos;
 using TeamSync.Application.Services.TaskServices;
-using TeamSync.Domain.Entities.TaskEntities;
 
 namespace TeamSync.Web.Controllers
 {

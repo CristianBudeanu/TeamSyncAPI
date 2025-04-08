@@ -9,13 +9,13 @@ using TeamSync.Domain.Entities.GithubEntities;
 using TeamSync.Domain.Entities.ProjectEntities;
 using TeamSync.Domain.Entities.TaskEntities;
 using TeamSync.Helpers.HttpContextHelper;
-using TeamSync.Helpers.ImageHelper;
+using TeamSync.Helpers.FileHelper;
 using TeamSync.Infrastructure.EF.Contexts;
 
 namespace TeamSync.Application.Services.ProjectServices
 {
     public class ProjectService(
-        IImageService _imageService,
+        IFileService _imageService,
         IHttpContextService _httpContextService,
         IGithubService _githubService,
         TeamSyncAppContext _context
@@ -28,7 +28,7 @@ namespace TeamSync.Application.Services.ProjectServices
 
         public async Task CreateProjectTask(ProjectCreateDto dto)
         {
-            var project = dto.Adapt<Domain.Entities.ProjectEntities.Project>();
+            var project = dto.Adapt<Project>();
             var user = await _context.Users.Where(u => u.Username == _httpContextService.GetUsernameFromToken()).FirstOrDefaultAsync();
 
             if (user == null)
@@ -57,26 +57,16 @@ namespace TeamSync.Application.Services.ProjectServices
             };
 
             project.ProjectUserRoles.Add(projectUserRole);
+
+
+            if (dto.Image != null)
+            {
+                var filePath = await _imageService.SaveImage(dto.Image, project.Id);
+                project.Image = filePath;
+            }
+
             await _context.Projects.AddAsync(project);
             await _context.SaveChangesAsync();
-
-            //var projectRole = _projectRepository.
-
-            //if (projectData.Image != null)
-            //{
-            //    var projectList = await _projectRepository.GetProjectsAsync();
-
-            //    if (projectList != null) 
-            //    {
-            //        var lastCreatedProject = projectList.LastOrDefault();
-            //        project.Image = "image" + lastCreatedProject.Id;
-            //        await _imageService.SaveImage(projectData.Image);
-            //    }
-            //    else
-            //    {
-            //        project.Image = "image1";
-            //    }
-            //}
         }
 
         public async Task<ProjectDto> GetProjectDetails(Guid projectId)
@@ -134,6 +124,7 @@ namespace TeamSync.Application.Services.ProjectServices
         {
             var user = await _context.Users.FirstAsync(u => u.Username == _httpContextService.GetUsernameFromToken());
             var userProjects = await _context.Projects.Where(p => p.Members.Any(m => m.Id == user.Id)).ToListAsync();
+
 
 
             return userProjects.Adapt<List<ProjectPreviewDto>>();

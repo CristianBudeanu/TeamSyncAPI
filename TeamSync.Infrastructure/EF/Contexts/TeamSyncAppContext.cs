@@ -11,7 +11,7 @@ namespace TeamSync.Infrastructure.EF.Contexts
     {
         public TeamSyncAppContext(DbContextOptions<TeamSyncAppContext> options) : base(options)
         {
-            
+
         }
         public DbSet<User> Users { get; set; }
         public DbSet<Project> Projects { get; set; }

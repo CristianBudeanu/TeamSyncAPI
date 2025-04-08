@@ -44,12 +44,12 @@ namespace TeamSync.Infrastructure.EF.Configurations
             builder.HasData(
             new User
             {
-            Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
-            Username = "admin",
-            RoleId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
-            Email = "cristian.budeanu02@gmail.com",
-            PassHash = "bLJvnAQ9vt72eCQkkRpdj6Cok6kRjqdJH1GYR19FjnU=",
-            PassSalt = "C4F05POfmvkLjjolBSCiGw=="
+                Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                Username = "admin",
+                RoleId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                Email = "cristian.budeanu02@gmail.com",
+                PassHash = "bLJvnAQ9vt72eCQkkRpdj6Cok6kRjqdJH1GYR19FjnU=",
+                PassSalt = "C4F05POfmvkLjjolBSCiGw=="
             });
         }
     }

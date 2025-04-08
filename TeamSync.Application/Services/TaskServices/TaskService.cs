@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Mapster;
+﻿using Mapster;
 using Microsoft.EntityFrameworkCore;
 using TeamSync.Application.Common.GlobalExceptionHandler.CustomExceptions;
 using TeamSync.Application.Dto.TaskItemDtos;
@@ -21,7 +20,7 @@ namespace TeamSync.Application.Services.TaskServices
         }
         public async Task CreateTaskItem(Guid projectId, TaskItemCreateDto dto)
         {
-            if(!await _context.Projects.AnyAsync(pid => pid.Id == projectId))
+            if (!await _context.Projects.AnyAsync(pid => pid.Id == projectId))
             {
                 throw new NotFoundException("Project with id: " + projectId + " not found.");
             }
@@ -54,7 +53,7 @@ namespace TeamSync.Application.Services.TaskServices
             var username = _httpContextService.GetUsernameFromToken();
             var user = await _context.Users.Where(u => u.Username == username).FirstOrDefaultAsync();
 
-            if(user == null)
+            if (user == null)
             {
                 throw new NotFoundException("User not found!");
             }
@@ -71,14 +70,14 @@ namespace TeamSync.Application.Services.TaskServices
         {
             var task = await _context.Tasks.Include(a => a.AssignedUser).Where(t => t.Id == taskId).FirstOrDefaultAsync();
 
-            if(task == null)
+            if (task == null)
             {
                 throw new NotFoundException("Task not found!");
             }
 
             var taskStatus = await _context.TaskStatuses.Where(s => s.StatusName == status).FirstOrDefaultAsync();
 
-            if(taskStatus == null)
+            if (taskStatus == null)
             {
                 throw new NotFoundException("Task status not found!");
             }
