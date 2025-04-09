@@ -1,42 +1,77 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using TeamSync.Application.Common.GlobalExceptionHandler.CustomExceptions;
 using TeamSync.Application.Dto.ChatDtos;
+using TeamSync.Domain.Entities.ChatEntities;
+using TeamSync.Infrastructure.EF.Contexts;
 
 namespace TeamSync.Application.Services.Chat.Hubs
 {
-    public class ChatHub(ChatService _chatService) : Hub
+    public class ChatHub(
+        IChatService _chatService,
+        TeamSyncAppContext _context
+        ) : Hub
     {
-
-        public override async Task OnConnectedAsync()
+        public async Task JoinProjectChat(string username, Guid projectId)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, "Come2Chat");
-            await Clients.Caller.SendAsync("UserConnected");
+            string groupName = $"ProjectChat-{projectId}";
+
+            _chatService.AddUserToProject(username, Context.ConnectionId, projectId);
+            await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+
+            await Clients.Caller.SendAsync("UserConnectedToProject", projectId);
+            await DisplayProjectOnlineUsers(projectId);
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, "Come2Chat");
-            var user = _chatService.GetUserByConnectionId(Context.ConnectionId);
-            _chatService.RemoveUserFromList(user);
-            await DisplayOnlineUsers();
+            var projectIds = _chatService.GetProjectsByConnectionId(Context.ConnectionId);
+
+            foreach (var projectId in projectIds)
+            {
+                string groupName = $"ProjectChat-{projectId}";
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+                _chatService.RemoveUserFromProject(Context.ConnectionId, projectId);
+                await DisplayProjectOnlineUsers(projectId);
+            }
 
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async Task AddUserConnectionId(string username)
+        public async Task SendMessageToProject(Guid projectId, ChatMessageDto messageDto)
         {
-            _chatService.AddUserConnectionId(username, Context.ConnectionId);
-            await DisplayOnlineUsers();
+            var sender = await _context.Users
+                .FirstOrDefaultAsync(u => u.Username == messageDto.FromUsername);
+
+            if (sender == null)
+                throw new HubException($"User '{messageDto.FromUsername}' not found.");
+
+            var message = new ChatMessage
+            {
+                ProjectId = projectId,
+                FromId = sender.Id,
+                Message = messageDto.Message,
+                SentAt = DateTime.UtcNow
+            };
+
+            await _context.ChatMessages.AddAsync(message);
+            await _context.SaveChangesAsync();
+
+            var returnDto = new ChatMessageDto
+            {
+                FromUsername = sender.Username,
+                Message = message.Message,
+                SentAt = message.SentAt
+            };
+
+            await Clients.Group($"ProjectChat-{projectId}").SendAsync("NewMessage", returnDto);
         }
 
-        public async Task ReceiveMessage(ChatMessageDto message)
+        private async Task DisplayProjectOnlineUsers(Guid projectId)
         {
-            await Clients.Groups("Come2Chat").SendAsync("NewMessage", message);
-        }
-
-        private async Task DisplayOnlineUsers()
-        {
-            var onlineUsers = _chatService.GetOnlineUsers();
-            await Clients.Groups("Come2Chat").SendAsync("OnlineUsers", onlineUsers);
+            var onlineUsers = _chatService.GetOnlineUsersByProject(projectId);
+            string groupName = $"ProjectChat-{projectId}";
+            await Clients.Group(groupName).SendAsync("OnlineUsers", onlineUsers);
         }
     }
 }

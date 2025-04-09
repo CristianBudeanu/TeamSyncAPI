@@ -21,7 +21,7 @@ namespace TeamSync.Application
         {
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IProjectService, ProjectService>();
-            services.AddSingleton<ChatService>();
+            services.AddScoped<IChatService, ChatService>();
             services.AddScoped<IInvitationService, InvitationService>();
             services.AddScoped<IGithubService, GithubService>();
             services.AddScoped<ITaskService, TaskService>();

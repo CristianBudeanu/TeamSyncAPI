@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TeamSync.Infrastructure.EF.Contexts;
 
@@ -11,9 +12,11 @@ using TeamSync.Infrastructure.EF.Contexts;
 namespace TeamSync.Infrastructure.Migrations
 {
     [DbContext(typeof(TeamSyncAppContext))]
-    partial class TeamSyncAppContextModelSnapshot : ModelSnapshot
+    [Migration("20250409073126_chat storage")]
+    partial class chatstorage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,7 +46,7 @@ namespace TeamSync.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("FromId")
+                    b.Property<Guid>("From")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Message")
@@ -53,14 +56,15 @@ namespace TeamSync.Infrastructure.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("SenderId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("SentAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FromId");
-
-                    b.HasIndex("ProjectId");
+                    b.HasIndex("SenderId");
 
                     b.ToTable("ChatMessages");
                 });
@@ -174,12 +178,12 @@ namespace TeamSync.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("ac32235c-a2b8-40ee-9d42-b4f3283968af"),
+                            Id = new Guid("6a92fe5a-a9b1-475f-9b87-0ff77225aaf5"),
                             ProjectRoleName = "Administrator"
                         },
                         new
                         {
-                            Id = new Guid("a6406290-0c29-407d-950c-3046984bfa0a"),
+                            Id = new Guid("2dbf4035-46bb-4e49-a95e-a368809c14bc"),
                             ProjectRoleName = "Member"
                         });
                 });
@@ -305,22 +309,22 @@ namespace TeamSync.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("805612c5-4345-4680-8ddf-dbe38026e7f3"),
+                            Id = new Guid("36050345-8e45-46a8-9cd2-15b522b9df7b"),
                             StatusName = "Pending"
                         },
                         new
                         {
-                            Id = new Guid("2963d058-f152-456b-97ad-2fd7e06e27a3"),
+                            Id = new Guid("c09440d1-28d6-4297-b779-d60ada25f304"),
                             StatusName = "InWork"
                         },
                         new
                         {
-                            Id = new Guid("a851761c-99b9-4ae3-8e0d-8a5304b5aecd"),
+                            Id = new Guid("e975ae0e-9c2a-4084-8fb1-52ef3a0d08d3"),
                             StatusName = "Done"
                         },
                         new
                         {
-                            Id = new Guid("e3799698-6611-4a3d-bf0e-06c0967cbb8a"),
+                            Id = new Guid("f6a303ff-67d2-4cb1-9de4-eb268fc503b5"),
                             StatusName = "Closed"
                         });
                 });
@@ -387,21 +391,13 @@ namespace TeamSync.Infrastructure.Migrations
 
             modelBuilder.Entity("TeamSync.Domain.Entities.ChatEntities.ChatMessage", b =>
                 {
-                    b.HasOne("TeamSync.Domain.Entities.TaskEntities.User", "FromUser")
+                    b.HasOne("TeamSync.Domain.Entities.TaskEntities.User", "Sender")
                         .WithMany()
-                        .HasForeignKey("FromId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TeamSync.Domain.Entities.ProjectEntities.Project", "Project")
-                        .WithMany("chatMessages")
-                        .HasForeignKey("ProjectId")
+                        .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("FromUser");
-
-                    b.Navigation("Project");
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("TeamSync.Domain.Entities.GithubEntities.GithubRepository", b =>
@@ -508,8 +504,6 @@ namespace TeamSync.Infrastructure.Migrations
                     b.Navigation("ProjectUserRoles");
 
                     b.Navigation("TaskItems");
-
-                    b.Navigation("chatMessages");
                 });
 
             modelBuilder.Entity("TeamSync.Domain.Entities.ProjectEntities.ProjectRole", b =>

@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using TeamSync.Domain.Entities;
+using TeamSync.Domain.Entities.ChatEntities;
 using TeamSync.Domain.Entities.GithubEntities;
 using TeamSync.Domain.Entities.ProjectEntities;
 using TeamSync.Domain.Entities.TaskEntities;
@@ -20,6 +21,7 @@ namespace TeamSync.Infrastructure.EF.Contexts
         public DbSet<GithubRepository> GithubRepositories { get; set; }
         public DbSet<TaskItem> Tasks { get; set; }
         public DbSet<Domain.Entities.TaskEntities.TaskStatus> TaskStatuses { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

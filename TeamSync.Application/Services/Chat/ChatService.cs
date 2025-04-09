@@ -1,71 +1,117 @@
-﻿namespace TeamSync.Application.Services.Chat
+﻿using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using TeamSync.Application.Dto.ChatDtos;
+using TeamSync.Infrastructure.EF.Contexts;
+
+namespace TeamSync.Application.Services.Chat
 {
-    public class ChatService
+    public class ChatService(TeamSyncAppContext _context) : IChatService
     {
-        private static readonly Dictionary<string, string> Users = new Dictionary<string, string>();
+        private static readonly Dictionary<Guid, Dictionary<string, string>> ProjectUsers = new();
+        private static readonly Dictionary<string, List<Guid>> ConnectionProjects = new();
 
-        public bool AddUserToList(string userToAdd)
+        public void AddUserToProject(string username, string connectionId, Guid projectId)
         {
-            lock (Users)
+            lock (ProjectUsers)
             {
-                foreach (var user in Users)
-                {
-                    if (user.Key.ToLower() == userToAdd.ToLower())
-                    {
-                        //throw new UnauthorizedAccessException("You don't have authorization to this chat.");
-                    }
-                }
+                if (!ProjectUsers.ContainsKey(projectId))
+                    ProjectUsers[projectId] = new Dictionary<string, string>();
 
-                Users.Add(userToAdd, null);
-                return true;
+                ProjectUsers[projectId][username] = connectionId;
+
+                lock (ConnectionProjects)
+                {
+                    if (!ConnectionProjects.ContainsKey(connectionId))
+                        ConnectionProjects[connectionId] = new List<Guid>();
+
+                    if (!ConnectionProjects[connectionId].Contains(projectId))
+                        ConnectionProjects[connectionId].Add(projectId);
+                }
             }
         }
 
-        public void AddUserConnectionId(string user, string connectionId)
+        public void RemoveUserFromProject(string connectionId, Guid projectId)
         {
-            lock (Users)
+            lock (ProjectUsers)
             {
-                if (Users.ContainsKey(user))
+                if (ProjectUsers.TryGetValue(projectId, out var users))
                 {
-                    Users[user] = connectionId;
+                    var user = users.FirstOrDefault(x => x.Value == connectionId).Key;
+                    if (!string.IsNullOrEmpty(user))
+                    {
+                        users.Remove(user);
+                    }
+
+                    if (users.Count == 0)
+                        ProjectUsers.Remove(projectId);
                 }
+
+                lock (ConnectionProjects)
+                {
+                    if (ConnectionProjects.TryGetValue(connectionId, out var projects))
+                    {
+                        projects.Remove(projectId);
+                        if (projects.Count == 0)
+                            ConnectionProjects.Remove(connectionId);
+                    }
+                }
+            }
+        }
+
+        public List<string> GetOnlineUsersByProject(Guid projectId)
+        {
+            lock (ProjectUsers)
+            {
+                if (ProjectUsers.TryGetValue(projectId, out var users))
+                {
+                    return users.Keys.OrderBy(x => x).ToList();
+                }
+                return new List<string>();
+            }
+        }
+
+        public List<Guid> GetProjectsByConnectionId(string connectionId)
+        {
+            lock (ConnectionProjects)
+            {
+                if (ConnectionProjects.TryGetValue(connectionId, out var projects))
+                {
+                    return projects;
+                }
+                return new List<Guid>();
             }
         }
 
         public string GetUserByConnectionId(string connectionId)
         {
-            lock (Users)
+            lock (ProjectUsers)
             {
-                return Users.Where(x => x.Value == connectionId).Select(x => x.Key).FirstOrDefault();
-            }
-        }
-
-        public string GetConnectionIdByUser(string user)
-        {
-            lock (Users)
-            {
-                return Users.Where(x => x.Key == user).Select(x => x.Value).FirstOrDefault();
-            }
-        }
-
-        public void RemoveUserFromList(string user)
-        {
-            lock (Users)
-            {
-                if (Users.ContainsKey(user))
+                foreach (var project in ProjectUsers)
                 {
-                    Users.Remove(user);
+                    var user = project.Value.FirstOrDefault(x => x.Value == connectionId).Key;
+                    if (!string.IsNullOrEmpty(user))
+                        return user;
                 }
+                return null;
             }
         }
 
-        public string[] GetOnlineUsers()
+        public async Task<List<ChatMessageDto>> GetProjectMessagesTask(Guid projectId)
         {
-            lock (Users)
+            var messages = await _context.ChatMessages
+            .Where(m => m.ProjectId == projectId)
+            .Include(m => m.FromUser)
+            .OrderBy(m => m.SentAt)
+            .Select(m => new ChatMessageDto
             {
-                return Users.OrderBy(x => x.Key).Select(x => x.Key).ToArray();
-            }
-        }
+                FromUsername = m.FromUser.Username != null ? m.FromUser.Username : "",
+                Message = m.Message,
+                SentAt = m.SentAt
+            })
+            .ToListAsync();
 
+            return messages;
+           }
+        
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TeamSync.Domain.Entities.ChatEntities;
 using TeamSync.Domain.Entities.GithubEntities;
 using TeamSync.Domain.Entities.TaskEntities;
 
@@ -20,5 +21,6 @@ namespace TeamSync.Domain.Entities.ProjectEntities
         public Invitation? Invitation { get; set; }
         public GithubRepository? GithubRepository { get; set; }
         public List<TaskItem> TaskItems { get; set; } = new List<TaskItem>();
+        public List<ChatMessage> chatMessages { get; set; } = new List<ChatMessage>();
     }
 }
