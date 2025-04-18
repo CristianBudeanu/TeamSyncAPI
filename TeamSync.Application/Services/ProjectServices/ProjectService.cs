@@ -102,6 +102,15 @@ namespace TeamSync.Application.Services.ProjectServices
 
             projectResult.UserTasks = userAssignedTasks.Adapt<List<TaskItemDto>>();
 
+            projectResult.Members = project.Members.Select(member => new ProjectUserDto
+            {
+                Id = member.Id.ToString(),
+                Username = member.Username,
+                Role = project.ProjectUserRoles
+        .FirstOrDefault(pur => pur.UserId == member.Id)?.ProjectRole?.ProjectRoleName ?? "Member"
+            }).ToList();
+
+
             if (project.GithubRepository is not null)
             {
                 var githubRepo = project.GithubRepository;

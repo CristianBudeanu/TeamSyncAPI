@@ -30,7 +30,9 @@ namespace Partner.Application.Common
                 .Map(dest => dest.Priority, src => Enum.Parse<TaskPriority>(src.Priority, true));
 
             config.NewConfig<TaskItem, TaskItemDto>()
-                .Map(dest => dest.Status, src => src.Status.StatusName);
+                .Map(dest => dest.Status, src => src.Status.StatusName)
+                .Map(dest => dest.ProjectName, src => src.Project.Name)
+                .Map(dest => dest.ProjectImage, src => src.Project.Image);
         }
     }
 }

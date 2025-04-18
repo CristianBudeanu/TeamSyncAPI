@@ -58,7 +58,13 @@ namespace TeamSync.Application.Services.TaskServices
                 throw new NotFoundException("User not found!");
             }
 
-            return (await _context.Tasks.Include(s => s.Status).Where(t => t.AssignedTo == user.Id).ToListAsync()).Adapt<List<TaskItemDto>>();
+            return (
+                await _context.Tasks
+                .Include(s => s.Status)
+                .Include(p => p.Project)
+                .Where(t => t.AssignedTo == user.Id)
+                .ToListAsync()
+                ).Adapt<List<TaskItemDto>>();
         }
 
         public Task UpdateTaskItem()

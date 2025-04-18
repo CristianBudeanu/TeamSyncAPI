@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using TeamSync.Application.Common.GlobalExceptionHandler.CustomExceptions;
 using TeamSync.Application.Dto.ChatDtos;
 using TeamSync.Domain.Entities.ChatEntities;
 using TeamSync.Infrastructure.EF.Contexts;
