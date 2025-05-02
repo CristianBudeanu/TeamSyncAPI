@@ -3,6 +3,7 @@ using MapsterMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Partner.Application.Common;
+using TeamSync.Application.Services;
 using TeamSync.Application.Services.Authentification;
 using TeamSync.Application.Services.Chat;
 using TeamSync.Application.Services.ProjectServices;
@@ -25,6 +26,7 @@ namespace TeamSync.Application
             services.AddScoped<IInvitationService, InvitationService>();
             services.AddScoped<IGithubService, GithubService>();
             services.AddScoped<ITaskService, TaskService>();
+            services.AddScoped<INotificationService, NotificationService>();
 
             //Helper
             services.AddScoped<IFileService, FileService>();

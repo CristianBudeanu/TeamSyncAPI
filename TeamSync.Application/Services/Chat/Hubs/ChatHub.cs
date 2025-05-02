@@ -8,7 +8,8 @@ namespace TeamSync.Application.Services.Chat.Hubs
 {
     public class ChatHub(
         IChatService _chatService,
-        TeamSyncAppContext _context
+        TeamSyncAppContext _context,
+        INotificationService _notificationService
         ) : Hub
     {
         public async Task JoinProjectChat(string username, Guid projectId)
@@ -64,6 +65,9 @@ namespace TeamSync.Application.Services.Chat.Hubs
             };
 
             await Clients.Group($"ProjectChat-{projectId}").SendAsync("NewMessage", returnDto);
+            await _notificationService.NotifyGroupAsync(projectId, sender.Id);
+            
+            
         }
 
         private async Task DisplayProjectOnlineUsers(Guid projectId)

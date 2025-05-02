@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using TeamSync.Application;
 using TeamSync.Application.Common.GlobalExceptionHandler.ExceptionsConfig;
+using TeamSync.Application.Services;
 using TeamSync.Application.Services.Chat.Hubs;
 
 var configuration = new ConfigurationBuilder()
@@ -91,5 +92,6 @@ app.MapControllers();
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.MapHub<ChatHub>("api/hubs/chat");
+app.MapHub<NotificationHub>("api/hubs/notification");
 
 app.Run();

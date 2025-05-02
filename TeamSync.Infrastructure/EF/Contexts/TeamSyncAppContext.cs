@@ -22,6 +22,7 @@ namespace TeamSync.Infrastructure.EF.Contexts
         public DbSet<TaskItem> Tasks { get; set; }
         public DbSet<Domain.Entities.TaskEntities.TaskStatus> TaskStatuses { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
+        public DbSet<ChatNotification>  ChatNotifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
