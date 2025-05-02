@@ -23,17 +23,25 @@ public class NotificationService : INotificationService
     
     public async Task NotifyGroupAsync(Guid projectId, Guid senderId)
     {
-        var project = await _context.Projects.Include(m => m.Members).FirstOrDefaultAsync(p => p.Id == projectId);
+        var project = await _context.Projects
+            .Include(p => p.Members)
+            .FirstOrDefaultAsync(p => p.Id == projectId);
+
         if (project == null)
-        {
             throw new NotFoundException("Project not found");
-        }
+
+        var notificationsToAdd = new List<ChatNotification>();
 
         foreach (var member in project.Members)
         {
-            var exists = await _context.ChatNotifications.AnyAsync(u => u.UserId == member.Id && u.ProjectId == projectId);
+            // Skip sender
+            if (member.Id == senderId)
+                continue;
 
-            if (!exists)
+            bool alreadyNotified = await _context.ChatNotifications
+                .AnyAsync(n => n.UserId == member.Id && n.ProjectId == projectId);
+
+            if (!alreadyNotified)
             {
                 var notification = new ChatNotification
                 {
@@ -42,19 +50,29 @@ public class NotificationService : INotificationService
                     UserId = member.Id,
                     ProjectName = project.Name,
                 };
-                
-                await _context.ChatNotifications.AddAsync(notification);
-                
-                await _hubContext.Clients.Group($"user-{member.Id}")
+
+                notificationsToAdd.Add(notification);
+            }
+        }
+
+        if (notificationsToAdd.Any())
+        {
+            await _context.ChatNotifications.AddRangeAsync(notificationsToAdd);
+            await _context.SaveChangesAsync();
+
+            // Send all in parallel
+            foreach (var notification in notificationsToAdd)
+            {
+                await _hubContext.Clients
+                    .Group($"user-{notification.UserId}")
                     .SendAsync("NewMessageNotification", new
                     {
-                        NotificationId = notification.Id,
-                        ProjectId = projectId,
-                        ProjectName = project.Name
+                        notification.Id,
+                        notification.ProjectId,
+                        notification.ProjectName,
                     });
             }
         }
-        await _context.SaveChangesAsync();
     }
 
     public async Task<List<ChatNotificationDto>> GetUserNotificationsAsync(string username)
@@ -69,12 +87,6 @@ public class NotificationService : INotificationService
         
         var notifications = await _context.ChatNotifications
             .Where(n => n.UserId == user.Id)
-            .Select(n => new ChatNotification
-            {
-                ProjectId = n.ProjectId,
-                ProjectName = n.ProjectName,
-                CreatedAt = n.CreatedAt
-            })
             .ToListAsync();
 
         return notifications.Adapt<List<ChatNotificationDto>>();
