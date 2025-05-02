@@ -81,8 +81,8 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"D:\Projects\TeamSync\Resources\Projects"),
-    RequestPath = "/Projects"
+    FileProvider = new PhysicalFileProvider(@"D:\projects\TeamSync\Resources"),
+    RequestPath = "/projects"
 });
 
 app.UseAuthorization();

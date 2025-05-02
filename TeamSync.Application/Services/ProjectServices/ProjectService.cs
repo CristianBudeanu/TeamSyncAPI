@@ -141,16 +141,23 @@ namespace TeamSync.Application.Services.ProjectServices
 
         public async Task UpdateProjectWithGithubRepo(Guid projectId, GithubUpdateDto dto)
         {
+            var validated = await _githubService.ValidateRepositoryCredentialsTask(dto);
+
+            if (validated == false)
+            {
+                throw new NotFoundException("Github credentials not valid");
+            }
+
             var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
             if (!projectExists)
                 throw new Exception("Project not found");
 
             var repo = await _context.GithubRepositories
                 .FirstOrDefaultAsync(r => r.ProjectId == projectId);
-
+            
             if (repo == null)
             {
-                // Create new GithubRepository
+                
                 repo = new GithubRepository
                 {
                     Id = Guid.NewGuid(),
