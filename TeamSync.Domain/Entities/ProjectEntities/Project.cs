@@ -16,11 +16,11 @@ namespace TeamSync.Domain.Entities.ProjectEntities
         public string Status { get; set; }
         public int Completed { get; set; }
         public DateTime CreationDate { get; set; }
-        public List<User> Members { get; set; } = new List<User>();
+        public List<User> Members { get; set; } = new();
         public List<ProjectUserRole> ProjectUserRoles { get; set; } = [];
         public Invitation? Invitation { get; set; }
         public GithubRepository? GithubRepository { get; set; }
-        public List<TaskItem> TaskItems { get; set; } = new List<TaskItem>();
-        public List<ChatMessage> chatMessages { get; set; } = new List<ChatMessage>();
+        public List<TaskItem> TaskItems { get; set; } = new();
+        public List<ChatMessage> chatMessages { get; set; } = new();
     }
 }
