@@ -10,15 +10,17 @@ using TeamSync.Domain.Entities.ProjectEntities;
 using TeamSync.Domain.Entities.TaskEntities;
 using TeamSync.Helpers.HttpContextHelper;
 using TeamSync.Helpers.FileHelper;
+using TeamSync.Helpers.LoggerHelper;
 using TeamSync.Infrastructure.EF.Contexts;
 
 namespace TeamSync.Application.Services.ProjectServices
 {
     public class ProjectService(
-        IFileService _imageService,
-        IHttpContextService _httpContextService,
-        IGithubService _githubService,
-        TeamSyncAppContext _context
+        IFileService imageService,
+        IHttpContextService httpContextService,
+        IGithubService githubService,
+        TeamSyncAppContext context,
+        ILoggerHelper _logger
         ) : IProjectService
     {
         public async Task AssignTask(TaskItem task)
@@ -29,14 +31,14 @@ namespace TeamSync.Application.Services.ProjectServices
         public async Task CreateProjectTask(ProjectCreateDto dto)
         {
             var project = dto.Adapt<Project>();
-            var user = await _context.Users.Where(u => u.Username == _httpContextService.GetUsernameFromToken()).FirstOrDefaultAsync();
+            var user = await context.Users.Where(u => u.Username == httpContextService.GetUsernameFromToken()).FirstOrDefaultAsync();
 
             if (user == null)
             {
                 throw new BadRequestException("User not found!");
             }
 
-            var projectRole = await _context.ProjectRoles.FirstOrDefaultAsync(r => r.ProjectRoleName == "Administrator");
+            var projectRole = await context.ProjectRoles.FirstOrDefaultAsync(r => r.ProjectRoleName == "Administrator");
 
             if (projectRole == null)
             {
@@ -61,21 +63,23 @@ namespace TeamSync.Application.Services.ProjectServices
 
             if (dto.Image != null)
             {
-                var filePath = await _imageService.SaveImage(dto.Image, project.Id);
+                var filePath = await imageService.SaveImage(dto.Image, project.Id);
                 project.Image = filePath;
             }
 
-            await _context.Projects.AddAsync(project);
-            await _context.SaveChangesAsync();
+            await context.Projects.AddAsync(project);
+            await context.SaveChangesAsync();
         }
 
         public async Task<ProjectDto> GetProjectDetails(Guid projectId)
         {
-            var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Username == _httpContextService.GetUsernameFromToken());
+            var user = await context.Users
+            .FirstOrDefaultAsync(u => u.Username == httpContextService.GetUsernameFromToken());
 
-            var project = await _context.Projects.Where(p => p.Id == projectId)
+            var project = await context.Projects.Where(p => p.Id == projectId)
                 .Include(m => m.Members)
+                .ThenInclude(t => t.AssignedTasks)
+                .ThenInclude(s => s.Status)
                 .Include(r => r.GithubRepository)
                 .Include(r => r.ProjectUserRoles)
                 .ThenInclude(pur => pur.ProjectRole)
@@ -85,11 +89,13 @@ namespace TeamSync.Application.Services.ProjectServices
             {
                 throw new Exception("Project not found or access denied");
             }
-
-            var userAssignedTasks = await _context.Tasks
-                .Include(s => s.Status)
-            .Where(t => t.ProjectId == projectId && t.AssignedTo == user.Id)
-            .ToListAsync();
+            
+            foreach (var member in project.Members)
+            {
+                member.AssignedTasks = member.AssignedTasks
+                    .Where(t => t.ProjectId == projectId)
+                    .ToList();
+            }
 
             var userRoles = project.ProjectUserRoles
                 .Where(pur => pur.UserId == user.Id)
@@ -100,14 +106,15 @@ namespace TeamSync.Application.Services.ProjectServices
 
             projectResult.UserRoles = userRoles;
 
-            projectResult.UserTasks = userAssignedTasks.Adapt<List<TaskItemDto>>();
+            // projectResult.UserTasks = userAssignedTasks.Adapt<List<TaskItemDto>>();
 
             projectResult.Members = project.Members.Select(member => new ProjectUserDto
             {
                 Id = member.Id.ToString(),
                 Username = member.Username,
                 Role = project.ProjectUserRoles
-        .FirstOrDefault(pur => pur.UserId == member.Id)?.ProjectRole?.ProjectRoleName ?? "Member"
+        .FirstOrDefault(pur => pur.UserId == member.Id)?.ProjectRole?.ProjectRoleName ?? "Member",
+                AssignedTasks = member.AssignedTasks.Adapt<List<TaskItemDto>>()
             }).ToList();
 
 
@@ -115,7 +122,7 @@ namespace TeamSync.Application.Services.ProjectServices
             {
                 var githubRepo = project.GithubRepository;
 
-                var latestCommits = await _githubService.GetRepositoryCommitsTask(
+                var latestCommits = await githubService.GetRepositoryCommitsTask(
                     new GithubRepositoryDto
                     {
                         Username = githubRepo.Username,
@@ -131,28 +138,26 @@ namespace TeamSync.Application.Services.ProjectServices
 
         public async Task<List<ProjectPreviewDto>> GetUserProjectsTask()
         {
-            var user = await _context.Users.FirstAsync(u => u.Username == _httpContextService.GetUsernameFromToken());
-            var userProjects = await _context.Projects.Where(p => p.Members.Any(m => m.Id == user.Id)).ToListAsync();
-
-
-
+            var user = await context.Users.FirstAsync(u => u.Username == httpContextService.GetUsernameFromToken());
+            var userProjects = await context.Projects.Where(p => p.Members.Any(m => m.Id == user.Id)).ToListAsync();
+            
             return userProjects.Adapt<List<ProjectPreviewDto>>();
         }
 
         public async Task UpdateProjectWithGithubRepo(Guid projectId, GithubUpdateDto dto)
         {
-            var validated = await _githubService.ValidateRepositoryCredentialsTask(dto);
+            var validated = await githubService.ValidateRepositoryCredentialsTask(dto);
 
             if (validated == false)
             {
                 throw new NotFoundException("Github credentials not valid");
             }
 
-            var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
+            var projectExists = await context.Projects.AnyAsync(p => p.Id == projectId);
             if (!projectExists)
                 throw new Exception("Project not found");
 
-            var repo = await _context.GithubRepositories
+            var repo = await context.GithubRepositories
                 .FirstOrDefaultAsync(r => r.ProjectId == projectId);
             
             if (repo == null)
@@ -167,7 +172,7 @@ namespace TeamSync.Application.Services.ProjectServices
                     Token = dto.Token
                 };
 
-                _context.GithubRepositories.Add(repo);
+                context.GithubRepositories.Add(repo);
             }
             else
             {
@@ -177,7 +182,7 @@ namespace TeamSync.Application.Services.ProjectServices
                 repo.Token = dto.Token;
             }
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
     }
 }

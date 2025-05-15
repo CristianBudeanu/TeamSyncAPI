@@ -76,6 +76,7 @@ namespace TeamSync.Application.Services.Authentification
             {
                 new Claim("Username", $"{user.Username}"),
                 new Claim("Role", $"{user.Role.RoleName}"),
+                new Claim(ClaimTypes.Name, $"{user.Username}"),
             };
 
             var token = new JwtSecurityToken(

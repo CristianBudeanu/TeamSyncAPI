@@ -7,6 +7,7 @@ using TeamSync.Application;
 using TeamSync.Application.Common.GlobalExceptionHandler.ExceptionsConfig;
 using TeamSync.Application.Services;
 using TeamSync.Application.Services.Chat.Hubs;
+using TeamSync.Web.Middlewares.SerilogMiddlewares;
 
 var configuration = new ConfigurationBuilder()
         .SetBasePath(Directory.GetCurrentDirectory())
@@ -16,6 +17,7 @@ var configuration = new ConfigurationBuilder()
 
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(configuration)
+    .Enrich.FromLogContext()
     .CreateLogger();
 
 
@@ -91,6 +93,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
+app.UseMiddleware<LogUsername>();
 app.MapHub<ChatHub>("api/hubs/chat");
 app.MapHub<NotificationHub>("api/hubs/notification");
 

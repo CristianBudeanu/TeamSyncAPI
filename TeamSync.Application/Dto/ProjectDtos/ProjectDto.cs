@@ -15,7 +15,7 @@ namespace TeamSync.Application.Dto.ProjectDtos
         public List<ProjectUserDto> Members { get; set; } = new();
         public List<string> UserRoles { get; set; } = new();
         public GithubRepositoryDto? GithubRepository { get; set; }
-        public List<TaskItemDto> UserTasks { get; set; }
+        // public List<TaskItemDto> UserTasks { get; set; }
 
     }
 }

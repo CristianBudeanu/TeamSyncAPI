@@ -13,7 +13,7 @@ namespace TeamSync.Domain.Entities.TaskEntities
         public string PassSalt { get; set; }
         public Guid RoleId { get; set; } // Foreign key 
         public Role Role { get; set; }
-        public List<Project> Projects { get; set; } = new List<Project>();
+        public List<Project> Projects { get; set; } = new();
         public List<ProjectUserRole> ProjectUserRoles { get; set; } = [];
         public List<TaskItem> AssignedTasks { get; set; } = [];
     }

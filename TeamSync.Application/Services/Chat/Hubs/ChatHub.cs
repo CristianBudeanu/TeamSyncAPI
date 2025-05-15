@@ -25,7 +25,8 @@ namespace TeamSync.Application.Services.Chat.Hubs
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            var projectIds = _chatService.GetProjectsByConnectionId(Context.ConnectionId);
+            var projectIds = _chatService.GetProjectsByConnectionId(Context.ConnectionId)
+                .ToList(); // Creează o copie pentru a evita modificarea în timpul iterației
 
             foreach (var projectId in projectIds)
             {

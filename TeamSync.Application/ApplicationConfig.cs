@@ -12,6 +12,7 @@ using TeamSync.Application.Services.ProjectServices.InvitationServices;
 using TeamSync.Application.Services.TaskServices;
 using TeamSync.Helpers.HttpContextHelper;
 using TeamSync.Helpers.FileHelper;
+using TeamSync.Helpers.LoggerHelper;
 using TeamSync.Infrastructure;
 
 namespace TeamSync.Application
@@ -31,6 +32,7 @@ namespace TeamSync.Application
             //Helper
             services.AddScoped<IFileService, FileService>();
             services.AddSingleton<IHttpContextService, HttpContextService>();
+            services.AddScoped<ILoggerHelper, LoggerHelper>();
 
             var config = TypeAdapterConfig.GlobalSettings;
             config.Scan(typeof(MappingConfig).Assembly);
