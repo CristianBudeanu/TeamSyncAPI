@@ -84,7 +84,7 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"D:\projects\TeamSync\Resources"),
+    FileProvider = new PhysicalFileProvider(@"D:\projects\TeamSync\Resources\projects"),
     RequestPath = "/projects"
 });
 
